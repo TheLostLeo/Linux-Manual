@@ -16,7 +16,9 @@ The partition should have three partition (boot,swap and the main os)
 
 
 /boot - /dev/efi -efi system partition -1gb
+
 [swap] -/dev/swap -linux swap- 4gb
+
 / root -/dev/root -linux root - 32gb
 
 
