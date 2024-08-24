@@ -60,6 +60,7 @@ to make usure the file are there on bootup
 <code>genfstab -U /mnt > /mnt/etc/fstab</code>
 
 changing root
+
 <code> arch-chroot /mnt</code>
 
 
