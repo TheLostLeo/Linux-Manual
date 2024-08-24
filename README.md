@@ -45,6 +45,24 @@ for swap
 <code>swapon /dev/swap_partition</code>
 
 
+Then do the installation
+
+we install mirrors 
+
+do the code in order
+
+to install base packages
+
+<code>pacstrap -K /mnt base linux linux-firmware neovim nano</code>
+
+to make usure the file are there on bootup
+
+<code>genfstab -U /mnt > /mnt/etc/fstab</code>
+
+changing root
+<code> arch-chroot /mnt</code>
+
+
 
 
 
