@@ -24,7 +24,9 @@ The partition should have three partition (boot,swap and the main os)
 The code for partition is:
 
 <code>mkswap /dev/(swap_partition)</code>
+
 <code>mkfs.fat -F 32 /dev/(efi_partition)</code>
+
 <code>mkfs.ext4 /dev/(root_partition)</code>
 
 
