@@ -32,12 +32,16 @@ The code for partition is:
 mounting the partition
 
 Mount the root volume to /mnt
+
 <code>mount /dev/root_partition /mnt</code>
 
 For UEFI systems, mount the EFI system partition
-<code>mount --mkdir /dev/efi_system_partition /mnt/boot<code>
+
+<code>mount --mkdir /dev/efi_system_partition /mnt/boot</code>
+
 
 for swap
+
 <code>swapon /dev/swap_partition</code>
 
 
