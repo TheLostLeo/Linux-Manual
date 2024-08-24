@@ -63,7 +63,7 @@ changing root
 
 <code> arch-chroot /mnt</code>
 
-open the arch_start.sh on nvim and update the hostname ,username and disk and save the file
+open the arch_start.sh on nvim and update the hostname ,username, disk, grub install and save the file
 
 run the arch_start.sh
 
