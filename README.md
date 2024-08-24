@@ -3,5 +3,11 @@ This is a basic repo form myself about the installation ,using and building of m
 
 iso file download link :https://archlinux.org/download
 
+The code used to check the version of the linux iso:
+
 <code>$ pacman-key -v archlinux-version-x86_64.iso.sig</code>
+
+
+
+
 
