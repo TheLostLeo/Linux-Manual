@@ -51,7 +51,7 @@ we install mirrors
 
 do the code in order
 
-to install base packages
+to install base packages and git if needed
 
 <code>pacstrap -K /mnt base linux linux-firmware neovim nano</code>
 
