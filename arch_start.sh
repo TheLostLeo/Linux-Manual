@@ -57,3 +57,9 @@ systemctl enable systemd-resolved.service
 grub-install --target=x86_64-efi --efi-directory=/boot/efi --recheck --removable
 
 #grub-mkconfig -o /boot/grub/grub.cfg
+#sudo apt install os-prober
+#$ sudo os-prober /dev/sda1:Windows 10:Windows:chain
+#$ sudo cat /etc/default/grub | grep 'GRUB_DISABLE_OS_PROBER' GRUB_DISABLE_OS_PROBER=true
+#$ sudo vi /etc/default/grub GRUB_DISABLE_OS_PROBER=false
+#$ sudo update-grub
+#$ sudo reboot -f
