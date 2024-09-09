@@ -65,7 +65,9 @@ changing root
 
 open the arch_start.sh on nvim and update the hostname ,username, disk, grub install and save the file
 
-run the arch_start.sh
+run the arch_start.sh using
+
+<code> bash filename </code>
 
 
 
