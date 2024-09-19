@@ -69,6 +69,13 @@ run the arch_start.sh using
 
 <code> bash filename </code>
 
+if issuse with wifi or ethernet install network manager 
+<code> sudo pacman -S networkmanager</code>
+
+after that enable the network manager
+<code>sudo systemctl enable NetworkManager
+sudo systemctl start NetworkManager</code>
+
 
 
 
