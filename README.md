@@ -85,7 +85,7 @@ the default shell is bash and it can be changed to other shells like fish or zsh
 
 run command to install zsh
 
-<code>sudo pacman -S zsh<code>
+<code>sudo pacman -S zsh</code>
 
 this install the zsh into the system
 
