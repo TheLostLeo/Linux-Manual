@@ -75,8 +75,8 @@ if issuse with wifi or ethernet install network manager
 
 after that enable the network manager
 
-<code>sudo systemctl enable NetworkManager
-sudo systemctl start NetworkManager</code>
+<code>sudo systemctl enable NetworkManager</code>
+<code>sudo systemctl start NetworkManager</code>
 
 
 
