@@ -81,8 +81,19 @@ after that enable the network manager
 
 the default shell is bash and it can be changed to other shells like fish or zsh
 
-(for my system it is zsh);
-run
+(for my system it is zsh)
+
+run command to install zsh
+
+<code>sudo pacman -S zsh<code>
+
+this install the zsh into the system
+
+then run the below code to change the shell from bash to zsh
+
+<code>chsh -s /bin/zsh</code>
+
+
 
 
 
