@@ -79,6 +79,14 @@ after that enable the network manager
 
 <code>sudo systemctl start NetworkManager</code>
 
+the default shell is bash and it can be changed to other shells like fish or zsh
+
+(for my system it is zsh);
+run
+
+
+
+
 
 
 
