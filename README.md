@@ -93,6 +93,9 @@ then run the below code to change the shell from bash to zsh
 
 <code>chsh -s /bin/zsh</code>
 
+have to do oh-my-zsh
+and xorg
+
 
 
 
