@@ -140,10 +140,15 @@ cd to bspwm and chmod to make the bspwmrc excutable
 nvim the bspwmrc file and these line for auto start
 
 #autostart
+
 sxhkd &
+
 picom --config $HOME/.config/picom/picom.conf &
+
 nitrogen --restore &
+
 dunst &
+
 polybar &
 
 and save the changes
