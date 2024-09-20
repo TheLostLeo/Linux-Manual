@@ -93,8 +93,65 @@ then run the below code to change the shell from bash to zsh
 
 <code>chsh -s /bin/zsh</code>
 
-have to do oh-my-zsh
-and xorg
+now do the oh-my-zsh
+
+<code>sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"</code>
+
+now to install xorh for the window manager
+
+first update you system
+
+<code>sudo pacman -Syu</code>
+
+now install the xorg and the depended packages
+
+<code>sudo pacman -S xorg-server xorg-xinit xorg-xrandr</code>
+
+install driver input
+
+<code>sudo pacman -S xf86-input-libinput</code>
+
+install a video drive according to your cpu or gpu
+
+install the all the thing need for the os (window manger,status bar,terminal etc)
+
+<code>sudo pacman -S bspwm picom rofi polybar dunst sxhkd thunar alacritty nitrogen</code>
+
+now cd to .config folder
+
+and do the following
+
+<code>mkdir bspwm sxhkd picom polybar dunst</code>
+
+<code>cp /usr/share/doc/bspwm/examples/bspwmrc ~/.config/bspwm/bspwmrc</code>
+
+<code>cp /usr/share/doc/bspwm/examples/sxhdrc ~/.config/sxhkd/sxhkdrc</code>
+
+<code>cp /etc/xdg/picom.config picom/</code>
+
+<code>cp /etc/polybar/config.ini polybar/<code>
+
+<code>cp /etc/dunst/dunstrc dunst</code>
+
+cd to bspwm and chmod to make the bspwmrc excutable
+
+<code>chmod +x bspwmrc</code>
+
+nvim the bspwmrc file and these line for auto start
+
+#autostart
+sxhkd &
+picom --config $HOME/.config/picom/picom.conf &
+nitrogen --restore &
+dunst &
+polybar &
+
+and save the changes
+
+
+
+
+
 
 
 
