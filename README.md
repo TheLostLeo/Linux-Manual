@@ -129,7 +129,7 @@ and do the following
 
 <code>cp /etc/xdg/picom.config picom/</code>
 
-<code>cp /etc/polybar/config.ini polybar/<code>
+<code>cp /etc/polybar/config.ini polybar</code>
 
 <code>cp /etc/dunst/dunstrc dunst</code>
 
