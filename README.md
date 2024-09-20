@@ -138,7 +138,7 @@ cd to bspwm and chmod to make the bspwmrc excutable
 <code>chmod +x bspwmrc</code>
 
 nvim the bspwmrc file and these line for auto start
-<text>
+
 #autostart
 
 sxhkd &
@@ -150,7 +150,6 @@ nitrogen --restore &
 dunst &
 
 polybar &
-</text>
 
 and save the changes
 
