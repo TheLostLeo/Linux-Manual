@@ -153,6 +153,8 @@ polybar &
 
 and save the changes
 
+open sxhkdrc in the config/sxhkd and enter the keyblinds need
+
 
 
 
