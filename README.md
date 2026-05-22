@@ -1,247 +1,263 @@
-# Linux Manual - Arch Linux Installation Guide
+# Arch Linux Installation Guide
 
-This repository contains resources and instructions for installing and configuring Arch Linux, with both manual and automatic installation options.
+A beginner-friendly Arch Linux installation guide with:
+- Manual installation steps
+- UEFI support
+- Dual boot support
+- GRUB setup
+- Post-install automation script
 
-## Table of Contents
+---
 
-- [Common Preparation](#common-preparation)
-  - [1. Getting Started](#1-getting-started)
-  - [2. Disk Partitioning](#2-disk-partitioning)
-  - [3. Format and Mount Partitions](#3-format-and-mount-partitions)
-- [Installation Options](#installation-options)
-  - [Manual Installation](#manual-installation)
-  - [Automatic Installation](#automatic-installation)
-- [Windows Detection in GRUB](#windows-detection-in-grub)
+# Requirements
 
-## Common Preparation
+Before starting:
 
-### 1. Getting Started
+- Backup important data
+- Disable Secure Boot
+- Create a bootable Arch Linux USB
+- Boot in UEFI mode
 
-#### 1.1. Download ISO
+Download Arch Linux ISO:
+https://archlinux.org/download/
 
-Download the latest Arch Linux ISO from the [official website](https://archlinux.org/download/).
+---
 
-#### 1.2. Create Bootable USB
+# Boot Into Arch ISO
 
-Create a bootable USB drive using tools like `dd`, Rufus, Ventoy, or Etcher
-
-#### 1.3. Boot from USB
-
-- Restart your computer and boot from the USB
-- When the boot menu appears, select "Arch Linux install medium" and press Enter
-
-#### 1.4. Verify Internet Connection
-
-Once booted into the live environment:
+After booting into the live environment:
 
 ```bash
-# Verify network connection
-ping -c 3 archlinux.org
-
-# If using WiFi, connect using iwctl
-iwctl
-[iwd]# device list
-[iwd]# station wlan0 scan
-[iwd]# station wlan0 get-networks
-[iwd]# station wlan0 connect SSID
-[iwd]# exit
+ping archlinux.org
 ```
 
-### 2. Disk Partitioning
+If using WiFi:
 
-#### 2.1. Identify Your Disk
+```bash
+iwctl
+```
+
+Inside iwctl:
+
+```bash
+device list
+station wlan0 scan
+station wlan0 get-networks
+station wlan0 connect WIFI_NAME
+exit
+```
+
+---
+
+# Identify Disks
 
 ```bash
 lsblk
 ```
 
-#### 2.2. Partition the Disk
+Example NVMe drive:
 
 ```bash
-# Start fdisk for your disk (replace sdX)
-fdisk /dev/sdX
+/dev/nvme0n1
 ```
 
-Create the following partitions:
-- EFI System Partition (ESP): 200-500MB (type: EFI System) [do not need to create if window is there and want to use the same EFI partition]
-- Swap partition: any size (type: Linux swap)
-- Root partition: Remainder (type: Linux filesystem)
+---
 
-### 3. Format and Mount Partitions
+# Partitioning (UEFI)
+
+Open cfdisk:
 
 ```bash
-# Format EFI partition (skip if window is there)
-mkfs.fat -F32 /dev/sdX1
-
-# Create and activate swap
-mkswap /dev/sdX2
-swapon /dev/sdX2
-
-# Format root partition
-mkfs.ext4 /dev/sdX3
-
-# Mount partitions
-mount /dev/sdX3 /mnt
-mkdir -p /mnt/boot/efi
-mount /dev/sdX1 /mnt/boot/efi
+cfdisk /dev/nvme0n1
 ```
 
-## Installation Options
+Create:
 
-After completing the common preparation steps above, you can choose either the manual or automatic installation method.
+| Partition | Size | Type |
+|---|---|---|
+| EFI | 512M | EFI System |
+| Swap | Optional | Linux Swap |
+| Root | Remaining | Linux filesystem |
 
-### Manual Installation
+If dual booting with Windows:
+- Reuse the existing EFI partition
+- DO NOT format the EFI partition
 
-#### 1. Install Essential Packages
+---
+
+# Format Partitions
+
+Example:
+
+| Partition | Usage |
+|---|---|
+| nvme0n1p1 | EFI |
+| nvme0n1p2 | Swap |
+| nvme0n1p3 | Root |
+
+Format root:
 
 ```bash
-pacstrap /mnt base linux linux-firmware base-devel
+mkfs.ext4 /dev/nvme0n1p3
 ```
 
-#### 2. Install Additional Useful Packages
+Format EFI:
 
 ```bash
-pacstrap /mnt vim nano git os-prober
+mkfs.fat -F32 /dev/nvme0n1p1
 ```
 
-#### 3. Generate fstab
+Create swap:
+
+```bash
+mkswap /dev/nvme0n1p2
+swapon /dev/nvme0n1p2
+```
+
+---
+
+# Mount Partitions
+
+```bash
+mount /dev/nvme0n1p3 /mnt
+mkdir /mnt/boot
+mount /dev/nvme0n1p1 /mnt/boot
+```
+
+---
+
+# Install Base System
+
+```bash
+pacstrap -K /mnt base linux linux-firmware base-devel \
+networkmanager sudo grub efibootmgr \
+nano neovim git
+```
+
+Generate fstab:
 
 ```bash
 genfstab -U /mnt >> /mnt/etc/fstab
 ```
 
-#### 4. Chroot into the New System
+Chroot into system:
 
 ```bash
 arch-chroot /mnt
 ```
 
-#### 5. Clone and Run the Installation Script
+---
+
+# Download Installation Script
 
 ```bash
-# Install git if not already installed
-pacman -S git
-
-# Clone this repository
-git clone https://github.com/TheLostLeo/Arch-Linux-installtion.git
-
-# Navigate to the repository
-cd Arch-Linux-installtion
-
-# Make the script executable
-chmod +x install.sh
-
-# Run the installation script
-./install.sh
+git clone https://github.com/USERNAME/REPOSITORY.git
+cd REPOSITORY
+chmod +x arch_install.sh
+./arch_install.sh
 ```
 
-#### 6. Install and Configure GRUB
+---
+
+# Install GRUB
 
 ```bash
-# Install GRUB
-grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB
+grub-install --target=x86_64-efi \
+--efi-directory=/boot \
+--bootloader-id=GRUB
+```
 
-# Generate GRUB configuration
+Generate config:
+
+```bash
 grub-mkconfig -o /boot/grub/grub.cfg
 ```
 
-### Automatic Installation
+---
 
-The Arch Linux ISO includes a guided installation tool called `archinstall` that automates many installation steps.
+# Enable Windows Detection
 
-#### 1. Start the Archinstall Tool
-
-```bash
-pacman -S archinstall archlinux-keyring
-archinstall
-```
-
-#### 2. Follow the Interactive Prompts
-
-The tool will guide you through:
-- Selecting keyboard layout
-- Selecting mirror region
-- Disk partitioning and formatting
-- Selecting desktop environment (if desired)
-- Setting username and password
-- Additional packages to install
-
-#### 3. Apply Configuration and Install
-
-- Review your selections
-- Confirm to begin installation
-- Wait for installation to complete
-- Reboot when prompted
-
-## Add Sudo Configuration (Required)
-
-Enable sudo for wheel group (inside chroot)
-```
-# Install sudo if not already installed
-pacman -S sudo
-
-# Enable sudo access for wheel group
-sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
-
-Verify (optional but recommended)
-# Switch to your user
-su - username
-
-# Test sudo
-sudo whoami
-```
-
-Expected output:
-```
-root
-```
-
-## Windows Detection in GRUB
-
-If you have Windows installed and want to dual boot with Arch Linux, follow these steps to ensure Windows appears in your GRUB menu (make sure your in chroot):
-
-### Install Required Packages
+Install os-prober:
 
 ```bash
-sudo pacman -S os-prober 
+pacman -S os-prober
 ```
 
-### Enable OS Prober in GRUB
-
-1. Edit the GRUB configuration:
-   ```bash
-   sudo nano /etc/default/grub
-   ```
-
-2. Add or uncomment this line:
-   ```
-   GRUB_DISABLE_OS_PROBER=false
-   ```
-
-3. Save and exit the editor
-
-### Mount Windows Partition (if necessary)
-
-only If Windows EFI is installed on a separate drive or partition:
+Enable os-prober:
 
 ```bash
-# Create a mount point
-sudo mkdir -p /mnt/windows
-
-# List all partitions to find Windows
-lsblk -f
-
-# Mount the Windows partition (replace sdXY with your Windows partition)
-sudo mount /dev/sdXY /mnt/windows
+nano /etc/default/grub
 ```
 
-### Update GRUB Configuration
+Uncomment:
 
 ```bash
-sudo grub-mkconfig -o /boot/grub/grub.cfg
+GRUB_DISABLE_OS_PROBER=false
 ```
 
-You should see output like:
+Regenerate GRUB:
+
+```bash
+grub-mkconfig -o /boot/grub/grub.cfg
 ```
-Found Windows Boot Manager on /dev/sdXY
+
+---
+
+# Finish Installation
+
+Exit chroot:
+
+```bash
+exit
 ```
+
+Unmount:
+
+```bash
+umount -R /mnt
+```
+
+Reboot:
+
+```bash
+reboot
+```
+
+Remove USB after reboot.
+
+---
+
+# Post Install
+
+Update system:
+
+```bash
+sudo pacman -Syu
+```
+
+Enable Bluetooth:
+
+```bash
+sudo systemctl enable bluetooth
+```
+
+Install audio packages:
+
+```bash
+sudo pacman -S pipewire pipewire-pulse wireplumber
+```
+
+---
+
+# Notes
+
+- NVIDIA users should install NVIDIA drivers
+- AMD users usually only need mesa
+- Intel users should install intel-ucode
+- AMD users should install amd-ucode
+
+---
+
+# License
+
+MIT
