@@ -1,68 +1,209 @@
-#! /bin/sh
+#!/bin/bash
 
-# Script for installing after creating partitions, installing basics, and genfstab.
+# =========================================================
+# Arch Linux Post Install Script
+# Run ONLY after:
+# - pacstrap
+# - genfstab
+# - arch-chroot /mnt
+# =========================================================
 
-# Run the script once chrooted.
+set -Eeuo pipefail
 
-set -e
-# Confirmation prompt
-read -s -n 1 -p 'Are you sure that you have gone through the variables before running? (y/n): ' ans
-[[ $ans = 'y' ]] || exit 1
+# =========================================================
+# USER VARIABLES
+# =========================================================
 
-_HOSTNAME=""
-_USERNAME=""
-_DISK="/dev/"
+HOSTNAME=""
+USERNAME=""
+TIMEZONE="Asia/Kolkata"
+LOCALE="en_US.UTF-8"
 
-# Very Important:
-alias echo="echo -e"
+# Change disk if needed
+DISK="/dev/nvme0n1"
 
-# set local time
-ln -sf /usr/share/zoneinfo/Asia/Kolkata /etc/localtime
+# =========================================================
+# CONFIRMATION
+# =========================================================
 
+echo "========================================="
+echo "Arch Linux Installation Script"
+echo "========================================="
+echo ""
+echo "Hostname : ${HOSTNAME}"
+echo "Username : ${USERNAME}"
+echo "Timezone : ${TIMEZONE}"
+echo "Disk     : ${DISK}"
+echo ""
+
+read -rp "Continue installation? (y/N): " ans
+
+if [[ "${ans}" != "y" ]]; then
+    echo "Installation cancelled."
+    exit 1
+fi
+
+# =========================================================
+# TIMEZONE
+# =========================================================
+
+echo ""
+echo "Setting timezone..."
+
+ln -sf "/usr/share/zoneinfo/${TIMEZONE}" /etc/localtime
 hwclock --systohc
 
-echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
+# =========================================================
+# LOCALE
+# =========================================================
+
+echo ""
+echo "Generating locale..."
+
+sed -i "s/^#${LOCALE}/${LOCALE}/" /etc/locale.gen
 
 locale-gen
 
-echo "LANG=en_US.UTF-8" > /etc/locale.conf
+echo "LANG=${LOCALE}" > /etc/locale.conf
 
-# Hostname
-echo "${_HOSTNAME}" > /etc/hostname
+# =========================================================
+# HOSTNAME
+# =========================================================
 
-# Hosts
-echo "\n\n127.0.0.1	localhost\n::1		localhost\n127.0.1.1	${_HOSTNAME}.localdomain ${_HOSTNAME}" >> /etc/hosts
+echo ""
+echo "Setting hostname..."
 
-mkinitcpio -P
+echo "${HOSTNAME}" > /etc/hostname
 
-# Password
+cat > /etc/hosts <<EOF
+127.0.0.1 localhost
+::1 localhost
+127.0.1.1 ${HOSTNAME}.localdomain ${HOSTNAME}
+EOF
+
+# =========================================================
+# KEYMAP
+# =========================================================
+
+echo "KEYMAP=us" > /etc/vconsole.conf
+
+# =========================================================
+# ROOT PASSWORD
+# =========================================================
+
+echo ""
+echo "Set ROOT password"
 passwd
 
-pacman -S iwd ranger grub neovim sudo efibootmgr linux-headers
+# =========================================================
+# INSTALL PACKAGES
+# =========================================================
 
-systemctl enable iwd.service
+echo ""
+echo "Installing packages..."
+
+pacman -S --noconfirm \
+networkmanager \
+grub \
+efibootmgr \
+sudo \
+nano \
+neovim \
+git \
+base-devel \
+linux-headers \
+os-prober \
+intel-ucode \
+pipewire \
+pipewire-pulse \
+wireplumber \
+bluetooth \
+bluez \
+bluez-utils
+
+# =========================================================
+# ENABLE SERVICES
+# =========================================================
+
+echo ""
+echo "Enabling services..."
+
+systemctl enable NetworkManager
+systemctl enable bluetooth
+
+# =========================================================
+# CREATE USER
+# =========================================================
+
+echo ""
+echo "Creating user..."
+
+useradd -m -G wheel,audio,video,storage,input -s /bin/bash "${USERNAME}"
+
+echo ""
+echo "Set password for ${USERNAME}"
+passwd "${USERNAME}"
+
+# =========================================================
+# ENABLE SUDO
+# =========================================================
+
+echo ""
+echo "Enabling sudo for wheel group..."
 
 sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
 
-useradd -m ${_USERNAME}
-passwd ${_USERNAME}
+# =========================================================
+# INITRAMFS
+# =========================================================
 
-usermod -aG wheel,audio,video,optical,storage,network,input ${_USERNAME}
+echo ""
+echo "Generating initramfs..."
 
-# DNS server
-# echo "DNS=1.1.1.1" >> /etc/systemd/resolved.conf
-echo "nameserver 1.1.1.1" >> /etc/resolv.conf
-systemctl enable systemd-resolved.service
+mkinitcpio -P
 
-# UEFI boot
-#grub-install --target=i386-pc --recheck $_DISK
-#grub-install --target=x86_64-efi --efi-directory=/boot/efi --recheck --removable
+# =========================================================
+# GRUB INSTALL
+# =========================================================
 
+# echo ""
+# echo "Installing GRUB..."
 
-#sudo apt install os-prober
-#$ sudo os-prober /dev/sda1:Windows 10:Windows:chain
-#$ sudo cat /etc/default/grub | grep 'GRUB_DISABLE_OS_PROBER' GRUB_DISABLE_OS_PROBER=true
-#$ sudo vi /etc/default/grub GRUB_DISABLE_OS_PROBER=false
-#grub-mkconfig -o /boot/grub/grub.cfg
-#$ sudo update-grub
-#$ sudo reboot -f
+# grub-install \
+# --target=x86_64-efi \
+# --efi-directory=/boot \
+# --bootloader-id=GRUB
+
+# =========================================================
+# ENABLE WINDOWS DETECTION
+# =========================================================
+
+# echo ""
+# echo "Enabling os-prober..."
+
+# sed -i 's/^#GRUB_DISABLE_OS_PROBER=false/GRUB_DISABLE_OS_PROBER=false/' /etc/default/grub
+
+# =========================================================
+# GENERATE GRUB CONFIG
+# =========================================================
+
+# echo ""
+# echo "Generating GRUB configuration..."
+
+# grub-mkconfig -o /boot/grub/grub.cfg
+
+# =========================================================
+# FINISHED
+# =========================================================
+
+echo ""
+echo "========================================="
+echo "Installation Complete"
+echo "========================================="
+echo ""
+echo "Exit chroot and reboot:"
+echo ""
+echo "exit"
+echo "umount -R /mnt"
+echo "reboot"
+echo ""
